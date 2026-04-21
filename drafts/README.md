@@ -15,8 +15,9 @@ When a draft is ready to go live:
 | File | Notes |
 |------|-------|
 | `pitch-deck-v2.html` | Rebrand to "Musa" + revised narrative. Drafted 2026-04-19. Not yet promoted. |
-| `AI_Music_Companion_Platform_Strategy_v3.docx` | Platform-strategy writeup that accompanies the deck. Same vintage. |
 
-## A note on public visibility
+## Public visibility rule
 
-This repo is **public** because GitHub Pages on free-tier accounts requires it. Anything placed here — even inside `drafts/` — is world-readable. If something in a strategy doc is sensitive (pricing, partner lists, financials), either redact before committing, or keep the file in the private main repo (`ai-music-companion`) and only promote the public-safe pitch deck here.
+This repo is **public** because GitHub Pages on free tier requires it. Anything here — even inside `drafts/` — is world-readable.
+
+**Strategy docs, financials, partner lists, pricing decks — don't commit them here.** They live in the private main repo (`perice-pope/ai-music-companion`). The repo's `.gitignore` explicitly excludes `*Platform_Strategy*.docx` and `*internal*` files as a safety net in case of a copy-paste slip.
