@@ -3,9 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Musa — Pitch Deck</title>
+<title>Musa — The AI practice companion for musicians</title>
+<meta name="description" content="Real-time feedback on pitch, rhythm, tone, and progress — for brass, voice, strings, woodwinds, and piano. Musa listens like a teacher.">
+<meta property="og:title" content="Musa — The AI practice companion for musicians">
+<meta property="og:description" content="Real-time feedback on pitch, rhythm, tone, and progress. For every instrument.">
+<meta property="og:type" content="website">
 <style>
-  /* ===== RESET & BASE ===== */
+  /* ============================================================
+     Musa — landing page
+     Single-file, no build step. Matches the pitch-deck palette.
+     ============================================================ */
+
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
@@ -21,783 +29,746 @@
     --blue:       #3B82F6;
     --blue-soft:  #60A5FA;
     --green:      #22C55E;
-    --red:        #EF4444;
     --purple:     #8B5CF6;
     --border:     rgba(148,163,184,0.12);
+    --border-strong: rgba(148,163,184,0.22);
     --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --nav-h: 72px;
   }
 
   html {
     font-family: var(--font);
     background: var(--bg-deep);
     color: var(--text);
-    scroll-snap-type: y mandatory;
-    overflow-y: scroll;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
   }
-  body { background: var(--bg-deep); }
+  body { background: var(--bg-deep); min-height: 100vh; }
 
-  .slide {
-    width: 100vw; min-height: 100vh; scroll-snap-align: start;
-    display: flex; align-items: center; justify-content: center;
-    position: relative; overflow: hidden; padding: 60px 80px;
-  }
-  .slide-inner { max-width: 1100px; width: 100%; position: relative; z-index: 2; }
-  .slide-number {
-    position: absolute; bottom: 28px; right: 40px;
-    font-size: 13px; color: var(--text-muted); letter-spacing: 0.5px;
-    font-variant-numeric: tabular-nums; z-index: 10;
+  a { color: inherit; text-decoration: none; }
+  section { scroll-margin-top: calc(var(--nav-h) + 16px); }
+
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px;
   }
 
-  h1 { font-size: clamp(2.8rem,5vw,4.2rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 0.5em; }
-  h2 { font-size: clamp(2rem,3.5vw,3rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.025em; margin-bottom: 0.6em; }
-  h3 { font-size: clamp(1.25rem,2vw,1.6rem); font-weight: 600; line-height: 1.3; margin-bottom: 0.5em; }
-  .tagline { font-size: clamp(1.2rem,2.2vw,1.7rem); font-weight: 400; color: var(--text-dim); line-height: 1.5; }
-  .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; color: var(--gold); margin-bottom: 1rem; display: block; }
-
-  .bullets { list-style: none; padding: 0; }
-  .bullets li { position: relative; padding-left: 1.6em; margin-bottom: 1em; font-size: clamp(1rem,1.5vw,1.2rem); line-height: 1.6; color: var(--text-dim); }
-  .bullets li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
-  .bullets.blue li::before { background: var(--blue); }
-  .bullets li strong { color: var(--text); font-weight: 600; }
-
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
-  .three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
-  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
-
-  .accent-bar { width: 48px; height: 4px; border-radius: 2px; background: var(--gold); margin-bottom: 1.5rem; }
-
-  .bg-glow { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15; z-index: 0; pointer-events: none; }
-  .nav-hint { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--text-muted); opacity: 0.6; z-index: 100; letter-spacing: 0.5px; transition: opacity 0.6s; pointer-events: none; }
-  .nav-hint.hidden { opacity: 0; }
-  .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--blue)); z-index: 200; transition: width 0.35s ease; border-radius: 0 2px 2px 0; }
-
-  /* Title slide */
-  .slide-title { text-align: center; background: radial-gradient(ellipse at 50% 40%, #152042 0%, var(--bg-deep) 70%); }
-  .slide-title h1 {
-    font-size: clamp(4rem,8vw,7rem); font-weight: 800;
-    background: linear-gradient(135deg, #FFFFFF 0%, #D4D4D8 50%, var(--gold-soft) 100%);
+  /* ============================================================
+     NAV
+     ============================================================ */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    height: var(--nav-h);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    background: rgba(11,17,32,0.72);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    height: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px;
+  }
+  .brand {
+    font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #FFFFFF 0%, var(--gold-soft) 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    margin-bottom: 0.2em; letter-spacing: -0.04em;
   }
-  .slide-title .subtitle {
-    font-size: clamp(1.1rem,1.8vw,1.5rem); color: var(--text-muted);
-    font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2rem;
+  .nav-links {
+    display: flex; align-items: center; gap: 28px;
+    list-style: none;
   }
+  .nav-links a {
+    font-size: 0.92rem; color: var(--text-dim); font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a.external::after {
+    content: ' ↗'; color: var(--text-muted); font-size: 0.85em;
+  }
+  .nav-cta {
+    display: inline-block; padding: 9px 18px; border-radius: 999px;
+    background: var(--gold); color: var(--bg-deep);
+    font-size: 0.9rem; font-weight: 700;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(245,158,11,0.28); }
 
-  .staff-lines { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100%; max-width: 900px; height: 200px; opacity: 0.04; z-index: 0; }
-  .staff-lines .line { position: absolute; left: 5%; right: 5%; height: 2px; background: white; border-radius: 1px; }
-  .staff-lines .line:nth-child(1){top:20%} .staff-lines .line:nth-child(2){top:35%} .staff-lines .line:nth-child(3){top:50%} .staff-lines .line:nth-child(4){top:65%} .staff-lines .line:nth-child(5){top:80%}
-  .note { position: absolute; font-size: 3rem; opacity: 0.06; z-index: 0; color: var(--gold); }
-  .note.n1{top:15%;left:8%;font-size:4rem;transform:rotate(-15deg)} .note.n2{top:25%;right:12%;font-size:2.5rem;transform:rotate(10deg)} .note.n3{bottom:20%;left:15%;font-size:3.5rem;transform:rotate(5deg)} .note.n4{bottom:30%;right:8%;font-size:3rem;transform:rotate(-8deg)}
-
-  /* Stats */
-  .stat-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 24px; margin-top: 2rem; }
-  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; text-align: center; }
-  .stat-card .number { font-size: clamp(2rem,3vw,2.8rem); font-weight: 800; color: var(--gold); line-height: 1; margin-bottom: 0.4em; }
-  .stat-card .desc { font-size: 0.95rem; color: var(--text-dim); line-height: 1.4; }
-
-  /* Feature cards */
-  .feature-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px 28px; transition: border-color 0.3s; }
-  .feature-card:hover { border-color: rgba(245,158,11,0.3); }
-  .feature-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1.2rem; }
-  .feature-icon.a{background:rgba(245,158,11,0.12)} .feature-icon.b{background:rgba(59,130,246,0.12)} .feature-icon.c{background:rgba(34,197,94,0.12)}
-  .feature-card p { font-size: 1rem; line-height: 1.6; color: var(--text-dim); }
-
-  /* Flow steps */
-  .flow-steps { display: flex; align-items: stretch; gap: 0; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center; }
-  .flow-step { flex: 1 1 0; min-width: 160px; max-width: 220px; text-align: center; position: relative; padding: 0 12px; }
-  .flow-step-num { width: 44px; height: 44px; border-radius: 50%; background: var(--bg-card); border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 700; color: var(--gold); margin: 0 auto 1rem; }
-  .flow-step h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
-  .flow-step p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.5; }
-  .flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 1.5rem; min-width: 30px; padding-bottom: 2rem; }
-
-  /* Comparison table */
-  .comparison-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 2rem; font-size: clamp(0.82rem,1.1vw,0.95rem); table-layout: fixed; }
-  .comparison-table thead th { padding: 14px 10px; text-align: center; font-weight: 600; font-size: clamp(0.8rem,1vw,0.92rem); color: var(--text); border-bottom: 2px solid var(--border); white-space: normal; }
-  .comparison-table thead th:first-child { text-align: left; width: 32%; }
-  .comparison-table thead th.us { color: var(--gold); position: relative; }
-  .comparison-table thead th.us::after { content: ''; position: absolute; top: 0; left: 4px; right: 4px; height: 3px; background: var(--gold); border-radius: 0 0 3px 3px; }
-  .comparison-table tbody td { padding: 13px 10px; text-align: center; border-bottom: 1px solid var(--border); color: var(--text-dim); }
-  .comparison-table tbody td:first-child { text-align: left; color: var(--text); font-weight: 500; }
-  .comparison-table tbody tr:last-child td { border-bottom: none; }
-  .comparison-table td.us-col { background: rgba(245,158,11,0.04); }
-  .check { color: var(--green); font-weight: 700; font-size: 1.1em; }
-  .cross { color: var(--text-muted); font-size: 1.1em; opacity: 0.5; }
-  .partial { color: var(--gold-soft); font-size: 0.85em; font-weight: 500; }
-
-  /* Instruments */
-  .instrument-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 16px; margin-top: 2rem; }
-  .instrument-chip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 16px; text-align: center; font-size: 1rem; font-weight: 500; transition: border-color 0.3s, transform 0.2s; }
-  .instrument-chip:hover { border-color: var(--gold); transform: translateY(-2px); }
-  .instrument-chip .inst-icon { display: block; font-size: 1.5rem; margin-bottom: 0.4rem; }
-
-  /* Module cards */
-  .module-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 2rem; }
-  .module-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; position: relative; overflow: hidden; }
-  .module-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
-  .module-card.m1::before { background: var(--gold); }
-  .module-card.m2::before { background: var(--blue); }
-  .module-card.m3::before { background: var(--green); }
-  .module-card.m4::before { background: var(--purple); }
-  .module-card.m5::before { background: var(--red); }
-  .module-card .module-num { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
-  .module-card.m1 .module-num { color: var(--gold); }
-  .module-card.m2 .module-num { color: var(--blue); }
-  .module-card.m3 .module-num { color: var(--green); }
-  .module-card.m4 .module-num { color: var(--purple); }
-  .module-card.m5 .module-num { color: var(--red); }
-  .module-card h4 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.5rem; }
-  .module-card p { font-size: 0.95rem; color: var(--text-dim); line-height: 1.5; }
-  .module-card .revenue { margin-top: 0.8rem; font-size: 0.85rem; font-weight: 600; color: var(--green); }
-
-  /* Financial table */
-  .fin-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 2rem; font-size: clamp(0.85rem,1.1vw,1rem); }
-  .fin-table thead th { padding: 14px 16px; text-align: center; font-weight: 600; color: var(--text); border-bottom: 2px solid var(--border); }
-  .fin-table thead th:first-child { text-align: left; }
-  .fin-table tbody td { padding: 14px 16px; text-align: center; border-bottom: 1px solid var(--border); color: var(--text-dim); }
-  .fin-table tbody td:first-child { text-align: left; color: var(--text); font-weight: 500; }
-  .fin-table tbody tr:last-child td { border-bottom: none; }
-  .fin-table .highlight { color: var(--green); font-weight: 700; }
-  .fin-table .negative { color: var(--red); font-weight: 600; }
-
-  /* Team */
-  .team-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; margin-top: 2rem; }
-  .team-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px 24px; text-align: center; }
-  .team-card .role { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; margin-bottom: 0.5rem; }
-  .team-card .name { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.4rem; }
-  .team-card p { font-size: 0.95rem; color: var(--text-dim); line-height: 1.5; }
-  .team-card .avatar { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-
-  /* Pricing */
-  .pricing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; margin-top: 2.5rem; }
-  .price-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 36px 28px; text-align: center; position: relative; transition: border-color 0.3s, transform 0.2s; }
-  .price-card:hover { transform: translateY(-3px); }
-  .price-card.featured { border-color: var(--gold); background: linear-gradient(180deg, rgba(245,158,11,0.06) 0%, var(--bg-card) 40%); }
-  .price-card.featured::before { content: 'Most Popular'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--gold); color: var(--bg-deep); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 16px; border-radius: 20px; }
-  .price-tier { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; color: var(--text-muted); margin-bottom: 0.6rem; }
-  .price-amount { font-size: clamp(2rem,3vw,2.6rem); font-weight: 800; margin-bottom: 0.2em; }
-  .price-period { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; }
-  .price-desc { font-size: 0.95rem; color: var(--text-dim); line-height: 1.6; }
-  .price-amount .dollar { font-size: 0.6em; vertical-align: top; line-height: 1.8; }
-
-  /* Vision timeline */
-  .vision-timeline { margin-top: 2.5rem; position: relative; padding-left: 40px; }
-  .vision-timeline::before { content: ''; position: absolute; left: 15px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(180deg, var(--gold), var(--blue), var(--purple)); border-radius: 1px; }
-  .vision-item { position: relative; margin-bottom: 2rem; padding-left: 20px; }
-  .vision-item:last-child { margin-bottom: 0; }
-  .vision-item::before { content: ''; position: absolute; left: -32px; top: 6px; width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--gold); background: var(--bg-deep); }
-  .vision-item:nth-child(2)::before { border-color: var(--blue-soft); }
-  .vision-item:nth-child(3)::before { border-color: var(--blue); }
-  .vision-item:nth-child(4)::before { border-color: var(--green); }
-  .vision-item:nth-child(5)::before { border-color: var(--purple); }
-  .vision-item .phase-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 0.3rem; }
-  .vision-item:nth-child(2) .phase-label { color: var(--blue-soft); }
-  .vision-item:nth-child(3) .phase-label { color: var(--blue); }
-  .vision-item:nth-child(4) .phase-label { color: var(--green); }
-  .vision-item:nth-child(5) .phase-label { color: var(--purple); }
-  .vision-item h4 { font-size: 1.15rem; font-weight: 600; margin-bottom: 0.3rem; }
-  .vision-item p { font-size: 1rem; color: var(--text-dim); line-height: 1.5; }
-
-  /* CTA */
-  .slide-cta { text-align: center; background: radial-gradient(ellipse at 50% 60%, #1a2744 0%, var(--bg-deep) 70%); }
-  .cta-button { display: inline-block; margin-top: 2rem; padding: 18px 48px; border-radius: 60px; background: linear-gradient(135deg, var(--gold) 0%, #D97706 100%); color: var(--bg-deep); font-size: 1.15rem; font-weight: 700; text-decoration: none; letter-spacing: 0.02em; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 24px rgba(245,158,11,0.25); }
-  .cta-button:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(245,158,11,0.35); }
-  .cta-email { margin-top: 1.5rem; font-size: 1.05rem; color: var(--text-dim); }
-  .cta-email a { color: var(--blue-soft); text-decoration: none; border-bottom: 1px solid rgba(96,165,250,0.3); }
-
-  .pull-quote { font-size: clamp(1.4rem,2.4vw,2rem); font-weight: 300; font-style: italic; color: var(--text); line-height: 1.5; border-left: 3px solid var(--gold); padding-left: 1.5rem; margin: 2rem 0; max-width: 700px; }
-  .pull-quote.center { border-left: none; padding-left: 0; text-align: center; max-width: 800px; margin: 2rem auto; }
-  .footnote { font-size: 0.9rem; color: var(--text-muted); margin-top: 2rem; font-style: italic; }
-
-  /* GTM */
-  .gtm-phases { display: grid; grid-template-columns: repeat(2,1fr); gap: 24px; margin-top: 2rem; }
-  .phase-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; }
-  .phase-num { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold); margin-bottom: 0.6rem; }
-  .phase-card h4 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
-  .phase-card p { font-size: 0.95rem; color: var(--text-dim); line-height: 1.5; }
-
-  /* ROI callout */
-  .roi-box { background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(59,130,246,0.08)); border: 1px solid rgba(245,158,11,0.2); border-radius: 16px; padding: 32px; margin-top: 2rem; text-align: center; }
-  .roi-box .big { font-size: clamp(2.5rem,4vw,3.5rem); font-weight: 800; background: linear-gradient(135deg, var(--gold), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: 0.4em; }
-
-  @media (max-width: 900px) {
-    .slide { padding: 40px 32px; }
-    .two-col, .three-col, .pricing-grid, .gtm-phases, .module-grid { grid-template-columns: 1fr; }
-    .flow-steps { flex-direction: column; align-items: center; }
-    .flow-arrow { transform: rotate(90deg); min-width: unset; padding: 0; margin: 4px 0; }
-    .flow-step { max-width: 300px; }
-    .team-grid { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 820px) {
+    .nav-links { display: none; }
   }
 
-  @media print {
-    html { scroll-snap-type: none; }
-    .slide { page-break-after: always; page-break-inside: avoid; min-height: 100vh; padding: 40px; }
-    .slide:last-child { page-break-after: auto; }
-    .progress-bar, .nav-hint, .slide-number { display: none; }
-    .bg-glow, .note, .staff-lines { display: none; }
-    body { background: white; color: #1a1a1a; }
-    .slide { background: white !important; }
-    h1, h2, h3, h4 { color: #1a1a1a !important; }
-    .tagline, .bullets li, p { color: #444 !important; }
-    .label { color: #b45309 !important; }
-    .card, .stat-card, .feature-card, .price-card, .phase-card, .instrument-chip, .module-card, .team-card {
-      background: #f8f8f8 !important; border-color: #ddd !important;
-    }
+  /* ============================================================
+     SHARED DECO
+     ============================================================ */
+  .bg-glow {
+    position: absolute; border-radius: 50%;
+    filter: blur(120px); opacity: 0.14; z-index: 0; pointer-events: none;
+  }
+  .label {
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.15em;
+    font-weight: 700; color: var(--gold); display: inline-block;
+  }
+  .label.blue { color: var(--blue-soft); }
+
+  h1, h2, h3 {
+    letter-spacing: -0.025em; line-height: 1.15;
+    font-weight: 700;
+  }
+  h1 { font-size: clamp(2.5rem, 5.5vw, 4.4rem); font-weight: 800; }
+  h2 { font-size: clamp(1.9rem, 3.4vw, 2.8rem); }
+  h3 { font-size: 1.2rem; font-weight: 600; }
+
+  p.lead {
+    font-size: clamp(1.05rem, 1.5vw, 1.22rem);
+    color: var(--text-dim); line-height: 1.55;
+    max-width: 640px;
+  }
+
+  .section { padding: 96px 0; position: relative; }
+  .section-head { max-width: 720px; margin-bottom: 48px; }
+  .section-head .label { margin-bottom: 1rem; }
+  .section-head h2 { margin-bottom: 0.6rem; }
+  .section-head p { color: var(--text-dim); font-size: 1.05rem; line-height: 1.55; }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card.interactive:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+
+  .button {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 28px; border-radius: 999px;
+    font-size: 1rem; font-weight: 700; font-family: var(--font);
+    border: none; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
+  }
+  .button.primary {
+    background: linear-gradient(135deg, var(--gold) 0%, #D97706 100%);
+    color: var(--bg-deep);
+    box-shadow: 0 4px 24px rgba(245,158,11,0.25);
+  }
+  .button.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(245,158,11,0.35); }
+  .button.secondary {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+  }
+  .button.secondary:hover { background: rgba(148,163,184,0.08); border-color: rgba(148,163,184,0.35); }
+  .button.disabled {
+    background: rgba(148,163,184,0.08);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    border: 1px solid var(--border);
+  }
+  .button.disabled:hover { transform: none; box-shadow: none; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 999px;
+    background: rgba(59,130,246,0.10);
+    border: 1px solid rgba(59,130,246,0.25);
+    color: var(--blue-soft);
+    font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .chip .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--blue-soft);
+    box-shadow: 0 0 8px var(--blue-soft);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.2); }
+  }
+  .chip.gold {
+    background: rgba(245,158,11,0.10);
+    border-color: rgba(245,158,11,0.3);
+    color: var(--gold-soft);
+  }
+  .chip.gold .dot { background: var(--gold-soft); box-shadow: 0 0 8px var(--gold-soft); }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero {
+    position: relative; overflow: hidden;
+    padding: clamp(80px, 14vh, 160px) 0 clamp(60px, 10vh, 120px);
+    background: radial-gradient(ellipse at 50% 0%, #152042 0%, var(--bg-deep) 65%);
+  }
+  .hero .bg-glow.g1 { width: 720px; height: 720px; top: -220px; left: 50%; transform: translateX(-50%); background: var(--gold); opacity: 0.10; }
+  .hero .bg-glow.g2 { width: 520px; height: 520px; top: 40%; right: -180px; background: var(--blue); opacity: 0.09; }
+
+  .hero-inner { text-align: center; position: relative; z-index: 2; }
+  .hero .chip { margin-bottom: 2rem; }
+  .hero h1 {
+    font-size: clamp(3.2rem, 8vw, 6.4rem);
+    background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 45%, var(--gold-soft) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 0.3em; letter-spacing: -0.04em;
+  }
+  .hero .tagline {
+    font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+    color: var(--text); font-weight: 500;
+    margin-bottom: 0.8em;
+  }
+  .hero .sub {
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    color: var(--text-dim); line-height: 1.55;
+    max-width: 640px; margin: 0 auto 2.5rem;
+  }
+  .hero-ctas {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 14px;
+  }
+
+  /* faint staff-line decoration */
+  .staff {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 92%; max-width: 1000px; height: 220px;
+    opacity: 0.04; z-index: 0; pointer-events: none;
+  }
+  .staff .line { position: absolute; left: 0; right: 0; height: 2px; background: white; border-radius: 1px; }
+  .staff .line:nth-child(1) { top: 20%; }
+  .staff .line:nth-child(2) { top: 35%; }
+  .staff .line:nth-child(3) { top: 50%; }
+  .staff .line:nth-child(4) { top: 65%; }
+  .staff .line:nth-child(5) { top: 80%; }
+
+  /* ============================================================
+     FEATURES
+     ============================================================ */
+  #features { background: var(--bg-deep); }
+  .features-grid {
+    display: grid; gap: 24px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 900px) { .features-grid { grid-template-columns: 1fr; } }
+  .feature-card h3 { margin-bottom: 0.5rem; font-size: 1.25rem; font-weight: 700; }
+  .feature-card p { color: var(--text-dim); line-height: 1.6; font-size: 0.98rem; }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(245,158,11,0.10);
+    border: 1px solid rgba(245,158,11,0.2);
+    color: var(--gold-soft); margin-bottom: 1.1rem;
+  }
+  .feature-icon.blue { background: rgba(59,130,246,0.10); border-color: rgba(59,130,246,0.25); color: var(--blue-soft); }
+  .feature-icon.purple { background: rgba(139,92,246,0.10); border-color: rgba(139,92,246,0.25); color: #C4B5FD; }
+  .feature-icon svg { width: 22px; height: 22px; }
+
+  /* ============================================================
+     PULL-QUOTE
+     ============================================================ */
+  .pull-quote {
+    padding: 80px 0; text-align: center;
+    background: linear-gradient(180deg, var(--bg-deep) 0%, var(--bg-slide) 100%);
+  }
+  .pull-quote blockquote {
+    font-size: clamp(1.15rem, 2.1vw, 1.55rem);
+    font-style: italic; color: var(--text-dim);
+    max-width: 800px; margin: 0 auto; line-height: 1.55;
+  }
+  .pull-quote blockquote strong { color: var(--text); font-weight: 600; font-style: normal; }
+  .pull-quote cite {
+    display: block; margin-top: 1.5rem;
+    font-size: 0.85rem; color: var(--text-muted);
+    letter-spacing: 0.1em; text-transform: uppercase; font-style: normal;
+  }
+
+  /* ============================================================
+     DEMO
+     ============================================================ */
+  #demo { background: var(--bg-slide); }
+  .demo-frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(245,158,11,0.08) 0%, rgba(15,23,42,0) 60%),
+      linear-gradient(135deg, #152042 0%, #0F172A 100%);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: default;
+  }
+  .demo-frame::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 40px);
+    pointer-events: none;
+  }
+  .play-btn {
+    width: 96px; height: 96px; border-radius: 50%;
+    background: rgba(245,158,11,0.12);
+    border: 2px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold-soft);
+    position: relative; z-index: 2;
+  }
+  .play-btn svg { width: 36px; height: 36px; margin-left: 6px; }
+  .demo-caption {
+    position: absolute; bottom: 24px; left: 50%;
+    transform: translateX(-50%); text-align: center;
+    font-size: 0.95rem; color: var(--text-muted);
+    z-index: 2; letter-spacing: 0.02em;
+  }
+  .demo-caption strong { color: var(--text-dim); font-weight: 600; }
+
+  /* ============================================================
+     DOWNLOAD
+     ============================================================ */
+  #download { background: var(--bg-deep); }
+  .download-grid {
+    display: grid; gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 900px) { .download-grid { grid-template-columns: 1fr; } }
+  .platform-card {
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .platform-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(148,163,184,0.06);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .platform-icon svg { width: 30px; height: 30px; }
+  .platform-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0; }
+  .platform-card .version { font-size: 0.85rem; color: var(--text-muted); }
+  .download-footer {
+    margin-top: 36px; text-align: center;
+    font-size: 0.95rem; color: var(--text-dim);
+  }
+  .download-footer a { color: var(--gold-soft); border-bottom: 1px solid rgba(251,191,36,0.3); }
+  .download-footer a:hover { color: var(--gold); }
+
+  /* ============================================================
+     TUTORIALS
+     ============================================================ */
+  #tutorials { background: var(--bg-slide); }
+  .tutorial-grid {
+    display: grid; gap: 24px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 900px) { .tutorial-grid { grid-template-columns: 1fr; } }
+  .tutorial-card {
+    padding: 0; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .tutorial-thumb {
+    aspect-ratio: 16 / 9;
+    background:
+      radial-gradient(ellipse at 30% 30%, rgba(59,130,246,0.12) 0%, rgba(15,23,42,0) 55%),
+      linear-gradient(135deg, #1a2744 0%, #0F172A 100%);
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid var(--border);
+    color: var(--gold);
+  }
+  .tutorial-thumb svg { width: 42px; height: 42px; opacity: 0.65; }
+  .tutorial-body { padding: 24px 28px 28px; }
+  .tutorial-body h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .tutorial-body p { color: var(--text-dim); font-size: 0.95rem; line-height: 1.55; margin-bottom: 1rem; }
+  .tutorial-meta {
+    font-size: 0.8rem; color: var(--text-muted);
+    letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600;
+  }
+
+  /* ============================================================
+     DOCS
+     ============================================================ */
+  #docs { background: var(--bg-deep); }
+  .docs-card {
+    display: grid; gap: 32px;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 40px;
+  }
+  @media (max-width: 760px) { .docs-card { grid-template-columns: 1fr; text-align: center; } }
+  .docs-card h2 { margin-bottom: 0.4rem; }
+  .docs-card p { color: var(--text-dim); font-size: 1rem; line-height: 1.6; max-width: 540px; }
+
+  /* ============================================================
+     COMMUNITY
+     ============================================================ */
+  #community { background: var(--bg-slide); }
+  .community-grid {
+    display: grid; gap: 24px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 760px) { .community-grid { grid-template-columns: 1fr; } }
+  .community-card {
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .community-card .icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .community-card .icon.discord { background: rgba(139,92,246,0.12); color: #C4B5FD; border: 1px solid rgba(139,92,246,0.25); }
+  .community-card .icon.github  { background: rgba(148,163,184,0.08); color: var(--text); border: 1px solid var(--border-strong); }
+  .community-card .icon svg { width: 26px; height: 26px; }
+  .community-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0; }
+  .community-card p { color: var(--text-dim); font-size: 0.98rem; line-height: 1.55; flex: 1; }
+  .community-card .action { margin-top: 8px; }
+
+  /* ============================================================
+     FINAL CTA
+     ============================================================ */
+  .final-cta {
+    padding: 120px 0;
+    text-align: center;
+    background: radial-gradient(ellipse at 50% 60%, #1a2744 0%, var(--bg-deep) 70%);
+    position: relative; overflow: hidden;
+  }
+  .final-cta .bg-glow { width: 600px; height: 600px; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--gold); opacity: 0.09; }
+  .final-cta h2 { margin-bottom: 0.6rem; }
+  .final-cta p { color: var(--text-dim); font-size: 1.1rem; line-height: 1.55; max-width: 560px; margin: 0 auto 2rem; }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 0;
+    color: var(--text-muted); font-size: 0.9rem;
+  }
+  .footer-inner {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+  .footer-links a { color: var(--text-dim); transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+
+  /* ============================================================
+     RESPONSIVE TWEAKS
+     ============================================================ */
+  @media (max-width: 640px) {
+    .container { padding: 0 20px; }
+    .section { padding: 72px 0; }
+    .card { padding: 24px; }
+    .docs-card { padding: 28px; }
+    .final-cta { padding: 80px 0; }
   }
 </style>
 </head>
 <body>
 
-<div class="progress-bar" id="progressBar" style="width:0%;"></div>
-<div class="nav-hint" id="navHint">Use arrow keys or scroll to navigate</div>
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="#top" class="brand">Musa</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#download">Download</a></li>
+      <li><a href="#tutorials">Tutorials</a></li>
+      <li><a href="#community">Community</a></li>
+      <li><a href="./pitch/" class="external">Pitch</a></li>
+    </ul>
+    <a href="./signup/" class="nav-cta">Join the pilot</a>
+  </div>
+</nav>
 
-<!-- ============ SLIDE 1 — TITLE ============ -->
-<section class="slide slide-title" id="slide-1">
-  <div class="staff-lines"><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div></div>
-  <div class="note n1">&#9835;</div><div class="note n2">&#9833;</div><div class="note n3">&#9834;</div><div class="note n4">&#9836;</div>
-  <div class="bg-glow" style="width:600px;height:600px;top:20%;left:30%;background:var(--gold);"></div>
-  <div class="bg-glow" style="width:500px;height:500px;bottom:10%;right:20%;background:var(--blue);"></div>
-  <div class="slide-inner" style="text-align:center;">
-    <p class="subtitle">Introducing</p>
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero" id="top">
+  <div class="bg-glow g1"></div>
+  <div class="bg-glow g2"></div>
+  <div class="staff" aria-hidden="true">
+    <div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div>
+  </div>
+  <div class="container hero-inner">
+    <span class="chip"><span class="dot"></span>Now in beta &middot; coming soon</span>
     <h1>Musa</h1>
-    <p class="tagline" style="font-style:italic;">The AI private lesson instructor for every musician.</p>
-    <p style="margin-top:2.5rem;font-size:0.95rem;color:var(--text-muted);">From the Greek Muses &mdash; the origin of the word <em>music</em> itself.</p>
+    <p class="tagline">The AI practice companion for musicians.</p>
+    <p class="sub">Real-time feedback on pitch, rhythm, tone, and progress — for brass, voice, strings, woodwinds, and piano. Musa listens like a teacher and adapts to you.</p>
+    <div class="hero-ctas">
+      <a href="#download" class="button primary">Download</a>
+      <a href="./signup/" class="button secondary">Join the pilot</a>
+    </div>
   </div>
-  <div class="slide-number">1 / 18</div>
 </section>
 
-<!-- ============ SLIDE 2 — PROBLEM: TEACHERS ============ -->
-<section class="slide" id="slide-2">
-  <div class="bg-glow" style="width:500px;height:500px;top:-10%;right:-5%;background:var(--gold);opacity:0.08;"></div>
-  <div class="slide-inner">
-    <span class="label">The Problem</span>
-    <h2>Music teachers are stretched impossibly thin</h2>
-    <div class="two-col" style="margin-top:2rem;">
-      <ul class="bullets">
-        <li><strong>1 teacher, 60&ndash;200 students</strong> &mdash; minutes of individual attention per student per week</li>
-        <li><strong>Zero visibility into home practice</strong> &mdash; "Did they actually practice, or just say they did?"</li>
-        <li><strong>National teacher shortage getting worse</strong> &mdash; fewer music ed graduates, more unfilled positions</li>
-        <li><strong>Impossible to give individual feedback</strong> to every student at the level they deserve</li>
-      </ul>
-      <div class="card" style="display:flex;align-items:center;justify-content:center;text-align:center;min-height:240px;">
-        <div>
-          <div style="font-size:4.5rem;font-weight:800;color:var(--gold);line-height:1;">1 : 200</div>
-          <div style="font-size:1.1rem;color:var(--text-dim);margin-top:0.8rem;">Typical teacher-to-student ratio<br>in public school music programs</div>
+<!-- ============================================================
+     FEATURES
+     ============================================================ -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head">
+      <span class="label">What it does</span>
+      <h2>Practice with a teacher in your ear.</h2>
+      <p>Three things Musa does better than anything else on your desk.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="card interactive feature-card">
+        <div class="feature-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a4 4 0 0 0-4 4v7a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
         </div>
+        <h3>Listens like a teacher</h3>
+        <p>Sub-25 ms analysis of pitch, rhythm, articulation, and tone. Musa hears every note you play — no wires, no editing, no waiting.</p>
       </div>
-    </div>
-  </div>
-  <div class="slide-number">2 / 18</div>
-</section>
 
-<!-- ============ SLIDE 3 — PROBLEM: STUDENTS ============ -->
-<section class="slide" id="slide-3">
-  <div class="bg-glow" style="width:500px;height:500px;bottom:-10%;left:-5%;background:var(--blue);opacity:0.08;"></div>
-  <div class="slide-inner">
-    <span class="label">The Problem</span>
-    <h2>Practicing alone is frustrating &mdash; and expensive to fix</h2>
-    <div class="two-col" style="margin-top:2rem;">
-      <ul class="bullets blue">
-        <li><strong>No one to tell you what's wrong</strong> &mdash; students repeat mistakes for days without knowing</li>
-        <li><strong>Private lessons cost $50&ndash;100/hour</strong> &mdash; most families can't afford weekly sessions</li>
-        <li><strong>Existing apps kill the joy</strong> &mdash; robotic note-checkers that reduce music to right-or-wrong</li>
-        <li><strong>Practice feels disconnected</strong> from the music students actually love and listen to</li>
-      </ul>
-      <div class="card" style="min-height:240px;">
-        <div style="margin-bottom:1.5rem;">
-          <div style="font-size:3.5rem;font-weight:800;color:var(--blue);line-height:1;">$75</div>
-          <div style="font-size:1rem;color:var(--text-dim);margin-top:0.4rem;">Average cost of a single<br>private lesson</div>
+      <div class="card interactive feature-card">
+        <div class="feature-icon blue" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+          </svg>
         </div>
-        <div>
-          <div style="font-size:3.5rem;font-weight:800;color:var(--red);line-height:1;">78%</div>
-          <div style="font-size:1rem;color:var(--text-dim);margin-top:0.4rem;">of student musicians quit<br>within the first two years</div>
+        <h3>Speaks your instrument's language</h3>
+        <p>From trumpet articulation to vocal vibrato to violin intonation — Musa's instrument profiles know what "good" sounds like on your horn, voice, or bow.</p>
+      </div>
+
+      <div class="card interactive feature-card">
+        <div class="feature-icon purple" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 17 9 11 13 15 21 7"/>
+            <polyline points="14 7 21 7 21 14"/>
+          </svg>
         </div>
+        <h3>Adapts to your progress</h3>
+        <p>Your practice dashboard tracks what's improving, what's plateauing, and what to work on next — so every session builds on the last.</p>
       </div>
+
     </div>
   </div>
-  <div class="slide-number">3 / 18</div>
 </section>
 
-<!-- ============ SLIDE 4 — THE OPPORTUNITY ============ -->
-<section class="slide" id="slide-4">
-  <div class="bg-glow" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--gold);opacity:0.06;"></div>
-  <div class="slide-inner">
-    <span class="label">The Opportunity</span>
-    <h2>The gap between measuring and <em style="color:var(--gold);font-style:normal;">teaching</em></h2>
-    <div class="stat-row">
-      <div class="stat-card">
-        <div class="number">$4.6B</div>
-        <div class="desc">Online music education market (2026)</div>
-      </div>
-      <div class="stat-card">
-        <div class="number">15%+</div>
-        <div class="desc">Annual growth rate and accelerating</div>
-      </div>
-      <div class="stat-card">
-        <div class="number">0</div>
-        <div class="desc">Tools that coach like a real teacher</div>
-      </div>
+<!-- ============================================================
+     PULL-QUOTE
+     ============================================================ -->
+<section class="pull-quote">
+  <div class="container">
+    <blockquote>
+      "The platform that wins music education will be the one that does what a great private teacher does: <strong>listens, understands, remembers, adapts, and speaks the student's musical language.</strong>"
+    </blockquote>
+    <cite>Why we're building Musa</cite>
+  </div>
+</section>
+
+<!-- ============================================================
+     DEMO
+     ============================================================ -->
+<section class="section" id="demo">
+  <div class="container">
+    <div class="section-head">
+      <span class="label blue">See it in action</span>
+      <h2>A short demo is on the way.</h2>
+      <p>We're filming the first walkthrough now. Subscribe on YouTube to get notified when it drops.</p>
     </div>
-    <div style="margin-top:2.5rem;max-width:800px;">
-      <ul class="bullets">
-        <li>Existing tools only check <strong>pitch, rhythm, and duration</strong> &mdash; the basics</li>
-        <li><strong>No tool assesses tone quality, dynamics, expression, or musicality</strong></li>
-        <li><strong>No tool speaks the student's musical language</strong> &mdash; connecting technique to the genres they love</li>
-      </ul>
+
+    <div class="demo-frame" aria-label="Demo video placeholder">
+      <div class="play-btn" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+      </div>
+      <div class="demo-caption"><strong>Demo video coming soon</strong> &middot; YouTube</div>
     </div>
   </div>
-  <div class="slide-number">4 / 18</div>
 </section>
 
-<!-- ============ SLIDE 5 — MUSA: THE PRODUCT ============ -->
-<section class="slide" id="slide-5">
-  <div class="bg-glow" style="width:500px;height:500px;top:10%;right:0;background:var(--blue);opacity:0.06;"></div>
-  <div class="slide-inner">
-    <span class="label">Meet Musa</span>
-    <h2>A practice companion that coaches<br>like your best teacher</h2>
-    <div class="three-col" style="margin-top:2.5rem;">
-      <div class="feature-card">
-        <div class="feature-icon a">&#127911;</div>
-        <h3>Coaches in real time</h3>
-        <p>Tips between phrases &mdash; never interrupts your playing. Like a teacher waiting for the right moment to speak.</p>
+<!-- ============================================================
+     DOWNLOAD
+     ============================================================ -->
+<section class="section" id="download">
+  <div class="container">
+    <div class="section-head">
+      <span class="label">Get Musa</span>
+      <h2>Download the desktop app.</h2>
+      <p>Musa is a native app for macOS, Windows, and Linux. Builds are shipping soon — join the pilot for first access.</p>
+    </div>
+
+    <div class="download-grid">
+
+      <div class="card platform-card">
+        <div class="platform-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.418 2.202-1.114 2.95-.832.912-2.179 1.61-3.274 1.52-.15-1.149.432-2.336 1.125-3.067.788-.845 2.125-1.47 3.263-1.403zM20.4 17.84c-.68 1.568-1.017 2.268-1.894 3.654-1.223 1.935-2.948 4.345-5.083 4.363-1.898.017-2.386-1.233-4.962-1.216-2.575.013-3.113 1.24-5.013 1.222-2.135-.02-3.77-2.196-4.993-4.13C1.86 17.973.854 13.478 2.71 10.513c1.31-2.104 3.388-3.33 5.337-3.33 1.976 0 3.218 1.086 4.86 1.086 1.585 0 2.548-1.087 4.84-1.087 1.732 0 3.567.942 4.874 2.564-4.285 2.352-3.586 8.497-2.221 8.094z"/></svg>
+        </div>
+        <h3>macOS</h3>
+        <p class="version">Universal binary · 1.0 beta</p>
+        <button class="button disabled" disabled>Coming soon</button>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon b">&#127926;</div>
-        <h3>Understands musicality</h3>
-        <p>Tone, expression, dynamics &mdash; not just "right or wrong." Hears the music the way a teacher does.</p>
+
+      <div class="card platform-card">
+        <div class="platform-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0M10.949 1.949L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/></svg>
+        </div>
+        <h3>Windows</h3>
+        <p class="version">x64 installer · 1.0 beta</p>
+        <button class="button disabled" disabled>Coming soon</button>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon c">&#127925;</div>
-        <h3>Speaks your language</h3>
-        <p>Connects your clarinet etude to Kendrick Lamar's horn arrangements. Practice feels relevant to YOUR musical life.</p>
+
+      <div class="card platform-card">
+        <div class="platform-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.075 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.88.88 0 0 0-.252.325c-.233.416-.177.762-.093 1.036.085.276.241.506.442.709.363.364.91.72 1.62 1.071.728.364 1.6.704 2.436 1.017.765.289 1.525.565 2.136.774.2.068.387.136.585.2.138.045.276.092.414.14.08.026.173.058.242.087.133.055.235.118.343.19.108.07.217.148.335.215.237.135.505.25.808.339.307.09.651.138 1.014.138.314 0 .645-.036.98-.114.335-.078.672-.2.996-.366.324-.167.634-.38.92-.648.285-.268.547-.59.774-.973.228-.382.422-.825.586-1.328a1.96 1.96 0 0 0 .088-.5c.005-.168-.015-.33-.056-.48a1.05 1.05 0 0 0-.17-.367c-.074-.107-.165-.196-.263-.266.048-.098.085-.21.114-.326.028-.115.047-.233.06-.352.013-.12.019-.24.021-.36.003-.12.002-.24-.003-.358-.01-.237-.034-.47-.073-.696-.077-.452-.218-.875-.406-1.262-.375-.775-.936-1.436-1.524-1.99-.59-.556-1.208-1.006-1.708-1.34.5-1.097.874-2.287.874-3.548 0-1.16-.213-2.226-.575-3.176-.362-.95-.868-1.78-1.47-2.469-.6-.688-1.292-1.234-2.054-1.622-.762-.388-1.588-.622-2.46-.622z"/></svg>
+        </div>
+        <h3>Linux</h3>
+        <p class="version">AppImage · 1.0 beta</p>
+        <button class="button disabled" disabled>Coming soon</button>
       </div>
+
+    </div>
+
+    <p class="download-footer">
+      Beta builds ship this summer. <a href="./signup/">Join the pilot</a> to be first in line.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     TUTORIALS
+     ============================================================ -->
+<section class="section" id="tutorials">
+  <div class="container">
+    <div class="section-head">
+      <span class="label blue">Learn Musa</span>
+      <h2>Tutorial library.</h2>
+      <p>Short, focused videos — how to set up, how each instrument works, and how to build a practice habit Musa can grow with you.</p>
+    </div>
+
+    <div class="tutorial-grid">
+
+      <a href="#" class="card interactive tutorial-card" aria-disabled="true">
+        <div class="tutorial-thumb">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+        </div>
+        <div class="tutorial-body">
+          <h3>Getting started</h3>
+          <p>Set up Musa, calibrate your mic, and play your first notes with the ear listening.</p>
+          <div class="tutorial-meta">Coming soon · YouTube</div>
+        </div>
+      </a>
+
+      <a href="#" class="card interactive tutorial-card" aria-disabled="true">
+        <div class="tutorial-thumb">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+        </div>
+        <div class="tutorial-body">
+          <h3>Per-instrument walkthroughs</h3>
+          <p>Trumpet, voice, violin, piano — deep dives into what Musa hears on each, and how to read the feedback.</p>
+          <div class="tutorial-meta">Coming soon · YouTube</div>
+        </div>
+      </a>
+
+      <a href="#" class="card interactive tutorial-card" aria-disabled="true">
+        <div class="tutorial-thumb">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+        </div>
+        <div class="tutorial-body">
+          <h3>Practice philosophy</h3>
+          <p>Short videos on deliberate practice, tracking progress, and getting the most out of every session.</p>
+          <div class="tutorial-meta">Coming soon · YouTube</div>
+        </div>
+      </a>
+
     </div>
   </div>
-  <div class="slide-number">5 / 18</div>
 </section>
 
-<!-- ============ SLIDE 6 — THE PRACTICE LOOP ============ -->
-<section class="slide" id="slide-6">
-  <div class="slide-inner">
-    <span class="label">How It Works</span>
-    <h2>The practice loop</h2>
-    <p class="tagline" style="font-size:1.1rem;font-style:normal;">Five minutes to start. No setup. No cables. Just you and your instrument.</p>
-    <div class="flow-steps">
-      <div class="flow-step">
-        <div class="flow-step-num">1</div>
-        <h4>Open &amp; Pick</h4>
-        <p>Launch Musa, choose your instrument.</p>
-      </div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-step">
-        <div class="flow-step-num">2</div>
-        <h4>Play</h4>
-        <p>Musa listens through your mic and follows along.</p>
-      </div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-step">
-        <div class="flow-step-num">3</div>
-        <h4>Get Coached</h4>
-        <p>Tips appear between phrases &mdash; gentle, specific, musical.</p>
-      </div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-step">
-        <div class="flow-step-num">4</div>
-        <h4>Review</h4>
-        <p>Session recap: what went well, what to work on, exercises to try.</p>
-      </div>
-      <div class="flow-arrow">&rarr;</div>
-      <div class="flow-step">
-        <div class="flow-step-num">5</div>
-        <h4>Come Back</h4>
-        <p>Tomorrow Musa remembers and picks up where you left off.</p>
-      </div>
-    </div>
-  </div>
-  <div class="slide-number">6 / 18</div>
-</section>
-
-<!-- ============ SLIDE 7 — CROSS-GENRE COACHING ============ -->
-<section class="slide" id="slide-7">
-  <div class="bg-glow" style="width:500px;height:500px;top:20%;left:-10%;background:var(--gold);opacity:0.06;"></div>
-  <div class="slide-inner">
-    <span class="label">Core Philosophy</span>
-    <h2>Cross-genre contextual coaching</h2>
-    <p class="tagline" style="font-size:1.15rem;font-style:normal;margin-bottom:2rem;">Meet the student where they actually live musically.</p>
-    <div class="two-col">
+<!-- ============================================================
+     DOCS
+     ============================================================ -->
+<section class="section" id="docs">
+  <div class="container">
+    <div class="card docs-card">
       <div>
-        <div class="card" style="background:var(--bg-card-alt);border-left:3px solid var(--gold);margin-bottom:1.5rem;">
-          <p style="font-size:1rem;color:var(--text-dim);line-height:1.7;font-style:italic;">"Nice work on that chromatic run. That same kind of line shows up in Kendrick Lamar's horn arrangements &mdash; listen to how Terrace Martin uses chromatic movement in the bridge of 'These Walls.' The technique you just practiced is the same vocabulary."</p>
-          <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.8rem;">&mdash; Musa coaching a clarinet student</p>
+        <span class="label">Documentation</span>
+        <h2 style="margin-top:0.8rem;">Read the docs.</h2>
+        <p>Setup guides, instrument profile reference, the latency budget, and the science behind Musa's ear. Shipping alongside the public beta.</p>
+      </div>
+      <a href="#" class="button secondary" aria-disabled="true">Docs coming soon</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     COMMUNITY
+     ============================================================ -->
+<section class="section" id="community">
+  <div class="container">
+    <div class="section-head">
+      <span class="label">Community</span>
+      <h2>Practice together.</h2>
+      <p>Musa is being built in the open with a growing community of musicians and teachers. Come hang out while we build.</p>
+    </div>
+
+    <div class="community-grid">
+
+      <div class="card interactive community-card">
+        <div class="icon discord" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.175 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        </div>
+        <h3>Discord</h3>
+        <p>Chat with other pilot users, share practice clips, and ask the team anything. Good vibes, no gatekeeping.</p>
+        <div class="action">
+          <a href="#" class="button secondary" aria-disabled="true">Invite link coming soon</a>
         </div>
       </div>
-      <ul class="bullets">
-        <li><strong>#1 reason students quit:</strong> practice feels disconnected from the music they love</li>
-        <li><strong>Teachers can say:</strong> "My students build musicianship that transfers to production, songwriting, and any genre"</li>
-        <li><strong>No competitor does this.</strong> This is the feature that makes students say "this app actually gets me"</li>
-      </ul>
+
+      <div class="card interactive community-card">
+        <div class="icon github" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12 0 17.302 3.438 21.8 8.207 23.387c.6.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.796 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+        </div>
+        <h3>GitHub</h3>
+        <p>Watch Musa ship in the open. Follow commits, read the architecture docs, and file issues with the team directly.</p>
+        <div class="action">
+          <a href="https://github.com/perice-pope" target="_blank" rel="noopener" class="button secondary">View on GitHub</a>
+        </div>
+      </div>
+
     </div>
   </div>
-  <div class="slide-number">7 / 18</div>
 </section>
 
-<!-- ============ SLIDE 8 — COMPARISON ============ -->
-<section class="slide" id="slide-8">
-  <div class="slide-inner">
-    <span class="label">What Makes Us Different</span>
-    <h2>Not another note checker</h2>
-    <table class="comparison-table">
-      <thead>
-        <tr>
-          <th></th>
-          <th class="us">Musa</th>
-          <th>SmartMusic</th>
-          <th>Tonestro</th>
-          <th>Yousician</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>Coaches like a teacher</td><td class="us-col"><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td><td><span class="cross">&#10005;</span></td><td><span class="cross">&#10005;</span></td></tr>
-        <tr><td>Tone quality feedback</td><td class="us-col"><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td><td><span class="cross">&#10005;</span></td><td><span class="cross">&#10005;</span></td></tr>
-        <tr><td>Cross-genre coaching</td><td class="us-col"><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td><td><span class="cross">&#10005;</span></td><td><span class="cross">&#10005;</span></td></tr>
-        <tr><td>Brass, wind, voice &amp; strings</td><td class="us-col"><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="partial">Partial</span></td><td><span class="partial">Guitar/piano only</span></td></tr>
-        <tr><td>Teacher dashboard</td><td class="us-col"><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td><td><span class="cross">&#10005;</span></td></tr>
-        <tr><td>Adaptive practice planning</td><td class="us-col"><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td><td><span class="cross">&#10005;</span></td><td><span class="cross">&#10005;</span></td></tr>
-        <tr><td>Works offline</td><td class="us-col"><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td><td><span class="check">&#10003;</span></td><td><span class="cross">&#10005;</span></td></tr>
-      </tbody>
-    </table>
+<!-- ============================================================
+     FINAL CTA
+     ============================================================ -->
+<section class="final-cta">
+  <div class="bg-glow"></div>
+  <div class="container" style="position:relative; z-index:1;">
+    <span class="chip gold"><span class="dot"></span>Pilot program · free semester access</span>
+    <h2 style="margin-top:1.4rem;">Ready to practice smarter?</h2>
+    <p>Join the Musa pilot and shape the product while you use it. Open to studios, teachers, and individual musicians.</p>
+    <a href="./signup/" class="button primary">Join the pilot →</a>
   </div>
-  <div class="slide-number">8 / 18</div>
 </section>
 
-<!-- ============ SLIDE 9 — INSTRUMENTS ============ -->
-<section class="slide" id="slide-9">
-  <div class="bg-glow" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--blue);opacity:0.05;"></div>
-  <div class="slide-inner" style="text-align:center;">
-    <span class="label">Instrument Support</span>
-    <h2>One app. Every instrument.</h2>
-    <div class="instrument-grid">
-      <div class="instrument-chip"><span class="inst-icon">&#127930;</span>Trumpet</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127930;</span>Trombone</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127930;</span>French Horn</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127930;</span>Tuba</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127925;</span>Flute</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127925;</span>Clarinet</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127927;</span>Saxophone</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127925;</span>Oboe</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127931;</span>Violin</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127931;</span>Viola</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127931;</span>Cello</div>
-      <div class="instrument-chip"><span class="inst-icon">&#127908;</span>Voice</div>
-    </div>
-    <p class="footnote" style="text-align:center;">Adding a new instrument = adding a JSON profile. No engineering required.</p>
-  </div>
-  <div class="slide-number">9 / 18</div>
-</section>
-
-<!-- ============ SLIDE 10 — THE PLATFORM VISION ============ -->
-<section class="slide" id="slide-10">
-  <div class="bg-glow" style="width:600px;height:600px;top:30%;right:-10%;background:var(--gold);opacity:0.05;"></div>
-  <div class="slide-inner">
-    <span class="label">The Bigger Picture</span>
-    <h2>Musa isn't an app. It's a platform.</h2>
-    <p class="tagline" style="font-size:1.1rem;font-style:normal;margin-bottom:0.5rem;">The practice companion is the wedge. Five expansion modules transform it into the operating system for music education.</p>
-    <div class="module-grid">
-      <div class="module-card m1">
-        <div class="module-num">Module 1</div>
-        <h4>Audition Simulator</h4>
-        <p>State-specific all-state etude packages with coaching tuned to audition rubrics. 100K&ndash;200K auditions per year nationally.</p>
-        <div class="revenue">$500K&ndash;$1M/yr potential</div>
-      </div>
-      <div class="module-card m2">
-        <div class="module-num">Module 2</div>
-        <h4>Instrument Knowledge Engine</h4>
-        <p>The secrets every teacher knows: embouchure, alternate fingerings, reed adjustment. Curated with university experts.</p>
-        <div class="revenue">Retention driver (bundled)</div>
-      </div>
-      <div class="module-card m3">
-        <div class="module-num">Module 3</div>
-        <h4>AI Listening Coach</h4>
-        <p>"Hear how Marsalis phrases this" &mdash; reference recordings that illustrate concepts in real time. Premium tier.</p>
-        <div class="revenue">Premium tier: $12&ndash;15/mo</div>
-      </div>
-      <div class="module-card m4">
-        <div class="module-num">Module 4</div>
-        <h4>Teacher Marketplace</h4>
-        <p>Interactive AI-coached curricula created by teachers. "16 Weeks to All-State." Teachers Pay Teachers meets AI.</p>
-        <div class="revenue">70/30 split, $9.99&ndash;49.99</div>
-      </div>
-      <div class="module-card m5">
-        <div class="module-num">Module 5</div>
-        <h4>B2B Licensing</h4>
-        <p>White-label for Yamaha, Conn-Selmer, Hal Leonard. 2&ndash;3M rental students annually need retention tools.</p>
-        <div class="revenue">$5&ndash;15/unit license</div>
-      </div>
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>© 2026 Musa · Built for musicians.</div>
+    <div class="footer-links">
+      <a href="./pitch/">Pitch deck</a>
+      <a href="./signup/">Pilot signup</a>
+      <a href="mailto:perice09@gmail.com">Email</a>
+      <a href="https://github.com/perice-pope" target="_blank" rel="noopener">GitHub</a>
     </div>
   </div>
-  <div class="slide-number">10 / 18</div>
-</section>
+</footer>
 
-<!-- ============ SLIDE 11 — FOR TEACHERS ============ -->
-<section class="slide" id="slide-11">
-  <div class="bg-glow" style="width:500px;height:500px;top:20%;left:-10%;background:var(--blue);opacity:0.06;"></div>
-  <div class="slide-inner">
-    <span class="label">For Teachers</span>
-    <h2>Your teaching assistant in every practice room</h2>
-    <div class="two-col" style="margin-top:2rem;">
-      <ul class="bullets">
-        <li><strong>See every student's practice activity</strong> at a glance &mdash; who practiced, how long, what they worked on</li>
-        <li><strong>Read session summaries</strong> without listening to recordings &mdash; save hours every week</li>
-        <li><strong>Spot struggling students early</strong> &mdash; intervention before they fall behind or quit</li>
-        <li><strong>Assign pieces and exercises</strong> and see results without collecting practice logs</li>
-      </ul>
-      <div class="card" style="display:flex;align-items:center;justify-content:center;">
-        <p class="pull-quote" style="border-left:none;margin:0;text-align:center;font-size:1.3rem;">
-          "It's like having a teaching assistant in every practice room &mdash; one who never calls in sick."
-        </p>
-      </div>
-    </div>
-  </div>
-  <div class="slide-number">11 / 18</div>
-</section>
-
-<!-- ============ SLIDE 12 — PRICING ============ -->
-<section class="slide" id="slide-12">
-  <div class="slide-inner" style="text-align:center;">
-    <span class="label">Pricing</span>
-    <h2>Simple. Affordable. Aligned with how schools budget.</h2>
-    <div class="pricing-grid">
-      <div class="price-card">
-        <div class="price-tier">Teacher</div>
-        <div class="price-amount">Free</div>
-        <div class="price-period">Always</div>
-        <div class="price-desc">Full access for teachers. When a teacher adopts, their students follow.</div>
-      </div>
-      <div class="price-card featured">
-        <div class="price-tier">Student Semester Pass</div>
-        <div class="price-amount"><span class="dollar">$</span>29&ndash;39</div>
-        <div class="price-period">per semester (~$6&ndash;8/mo)</div>
-        <div class="price-desc">Everything: coaching, progress tracking, session recaps, adaptive practice plans.</div>
-      </div>
-      <div class="price-card">
-        <div class="price-tier">School Site License</div>
-        <div class="price-amount">Custom</div>
-        <div class="price-period">20+ seats, semester billing</div>
-        <div class="price-desc">Volume pricing. Teacher dashboard, admin tools, dedicated onboarding.</div>
-      </div>
-    </div>
-    <p class="footnote" style="text-align:center;">Semester-based billing &mdash; aligned with how schools actually budget.</p>
-  </div>
-  <div class="slide-number">12 / 18</div>
-</section>
-
-<!-- ============ SLIDE 13 — GO TO MARKET ============ -->
-<section class="slide" id="slide-13">
-  <div class="bg-glow" style="width:500px;height:500px;bottom:-5%;left:-5%;background:var(--blue);opacity:0.06;"></div>
-  <div class="slide-inner">
-    <span class="label">Go to Market</span>
-    <h2>Teacher-led adoption, student-powered growth</h2>
-    <div class="gtm-phases">
-      <div class="phase-card">
-        <div class="phase-num">Phase 1 &mdash; Validate</div>
-        <h4>Free Semester Pilots</h4>
-        <p>5&ndash;10 music programs. Free semester. Gather feedback, refine, build case studies with real data.</p>
-      </div>
-      <div class="phase-card">
-        <div class="phase-num">Phase 2 &mdash; Evangelize</div>
-        <h4>Conference Circuit</h4>
-        <p>NAfME, state MEAs, NAMM. Demo at every booth. Teachers talk to teachers &mdash; the best distribution channel.</p>
-      </div>
-      <div class="phase-card">
-        <div class="phase-num">Phase 3 &mdash; Scale</div>
-        <h4>Teacher as Distributor</h4>
-        <p>One teacher adoption = 60&ndash;200 student seats. Plus audition prep seasonal revenue spikes.</p>
-      </div>
-      <div class="phase-card">
-        <div class="phase-num">Phase 4 &mdash; Expand</div>
-        <h4>D2C + B2B</h4>
-        <p>Adult learners, home-school families, direct-to-consumer. Instrument manufacturer partnerships.</p>
-      </div>
-    </div>
-  </div>
-  <div class="slide-number">13 / 18</div>
-</section>
-
-<!-- ============ SLIDE 14 — 5-YEAR FINANCIAL PLAN ============ -->
-<section class="slide" id="slide-14">
-  <div class="slide-inner">
-    <span class="label">The Numbers</span>
-    <h2>5-year financial plan</h2>
-    <p class="tagline" style="font-size:1rem;font-style:normal;margin-bottom:0;">Grounded in edtech SaaS benchmarks. Not optimism.</p>
-    <table class="fin-table">
-      <thead>
-        <tr><th></th><th>Year 1</th><th>Year 2</th><th>Year 3</th><th>Year 4</th><th>Year 5</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Revenue</td><td>$50&ndash;75K</td><td>$400&ndash;700K</td><td>$2&ndash;4M</td><td>$8&ndash;15M</td><td class="highlight">$15&ndash;30M</td></tr>
-        <tr><td>Spend</td><td>$150K</td><td>$200K</td><td>$400K</td><td>$800K</td><td>$1.5&ndash;2M</td></tr>
-        <tr><td>Net</td><td class="negative">-$75&ndash;100K</td><td class="highlight">+$200&ndash;500K</td><td class="highlight">+$1.5&ndash;3.5M</td><td class="highlight">+$7&ndash;14M</td><td class="highlight">+$13&ndash;28M</td></tr>
-        <tr><td>Schools</td><td>5&ndash;10</td><td>25&ndash;40</td><td>80&ndash;200</td><td>200&ndash;500</td><td>1,000+</td></tr>
-        <tr><td>Team</td><td>4</td><td>4&ndash;5</td><td>6&ndash;8</td><td>8&ndash;10</td><td>15&ndash;20</td></tr>
-        <tr><td>Valuation</td><td style="color:var(--text-muted);">Pre-rev</td><td>$3&ndash;6M</td><td>$16&ndash;44M</td><td>$64&ndash;165M</td><td class="highlight">$120&ndash;330M</td></tr>
-      </tbody>
-    </table>
-    <div class="roi-box">
-      <div class="big">50&ndash;100x</div>
-      <p style="font-size:1.1rem;color:var(--text-dim);">Return on ~$300K founder investment over 2 years</p>
-    </div>
-  </div>
-  <div class="slide-number">14 / 18</div>
-</section>
-
-<!-- ============ SLIDE 15 — TEAM ============ -->
-<section class="slide" id="slide-15">
-  <div class="bg-glow" style="width:500px;height:500px;top:10%;right:-5%;background:var(--gold);opacity:0.06;"></div>
-  <div class="slide-inner">
-    <span class="label">The Team</span>
-    <h2>Lean. Expert. Leveraged.</h2>
-    <div class="team-grid">
-      <div class="team-card">
-        <div class="avatar" style="background:rgba(59,130,246,0.15);">&#128187;</div>
-        <div class="role" style="color:var(--blue);">Founder &amp; CTO</div>
-        <div class="name">Perice</div>
-        <p>Product vision, engineering, architecture. Builds and ships the platform.</p>
-      </div>
-      <div class="team-card">
-        <div class="avatar" style="background:rgba(245,158,11,0.15);">&#127926;</div>
-        <div class="role" style="color:var(--gold);">CEO &amp; Academic Advisor</div>
-        <div class="name">Kris</div>
-        <p>Music education expertise, university partnerships, curriculum strategy, instrument knowledge curation.</p>
-      </div>
-      <div class="team-card">
-        <div class="avatar" style="background:rgba(34,197,94,0.15);">&#128222;</div>
-        <div class="role" style="color:var(--green);">Sales (Year 1 hire)</div>
-        <div class="name">Former Band Director</div>
-        <p>$60K base + commission. Speaks the language. Conference circuit. 2&ndash;3 demos/week.</p>
-      </div>
-      <div class="team-card">
-        <div class="avatar" style="background:rgba(139,92,246,0.15);">&#9881;&#65039;</div>
-        <div class="role" style="color:var(--purple);">Operations</div>
-        <div class="name">VA + Freelance Video</div>
-        <p>$2K/mo VA for logistics, CRM, support. $750/mo video editor for content.</p>
-      </div>
-    </div>
-    <p class="footnote" style="text-align:center;">Scaling triggers: second sales rep at $2M ARR. Marketing hire at $5M ARR. No premature headcount.</p>
-  </div>
-  <div class="slide-number">15 / 18</div>
-</section>
-
-<!-- ============ SLIDE 16 — TECHNOLOGY ============ -->
-<section class="slide" id="slide-16">
-  <div class="slide-inner">
-    <span class="label">The Technology</span>
-    <h2>Built for musicians, by musicians</h2>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:2rem;">
-      <div style="display:flex;gap:16px;align-items:flex-start;">
-        <div style="flex-shrink:0;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:rgba(245,158,11,0.1);">&#128187;</div>
-        <div><h4 style="font-size:1.05rem;font-weight:600;margin-bottom:0.3rem;">Mac, Windows &amp; Linux</h4><p style="font-size:0.95rem;color:var(--text-dim);line-height:1.5;">Works on the computers your school already has. Mobile coming.</p></div>
-      </div>
-      <div style="display:flex;gap:16px;align-items:flex-start;">
-        <div style="flex-shrink:0;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:rgba(59,130,246,0.1);">&#9889;</div>
-        <div><h4 style="font-size:1.05rem;font-weight:600;margin-bottom:0.3rem;">Under 20 milliseconds</h4><p style="font-size:0.95rem;color:var(--text-dim);line-height:1.5;">Mic to feedback &mdash; faster than a blink. Feels instant.</p></div>
-      </div>
-      <div style="display:flex;gap:16px;align-items:flex-start;">
-        <div style="flex-shrink:0;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:rgba(34,197,94,0.1);">&#9992;&#65039;</div>
-        <div><h4 style="font-size:1.05rem;font-weight:600;margin-bottom:0.3rem;">Works completely offline</h4><p style="font-size:0.95rem;color:var(--text-dim);line-height:1.5;">Practice anywhere. Perfect for rural schools and travel.</p></div>
-      </div>
-      <div style="display:flex;gap:16px;align-items:flex-start;">
-        <div style="flex-shrink:0;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:rgba(168,85,247,0.1);">&#128274;</div>
-        <div><h4 style="font-size:1.05rem;font-weight:600;margin-bottom:0.3rem;">Privacy first</h4><p style="font-size:0.95rem;color:var(--text-dim);line-height:1.5;">Audio processed on-device. Student data never sold or shared.</p></div>
-      </div>
-    </div>
-    <p class="footnote">Tauri 2.0 + Rust backend + React frontend. Open-source audio ML tools (Aubio, PESTO). LLM coaching via Claude API.</p>
-  </div>
-  <div class="slide-number">16 / 18</div>
-</section>
-
-<!-- ============ SLIDE 17 — VISION TIMELINE ============ -->
-<section class="slide" id="slide-17">
-  <div class="bg-glow" style="width:600px;height:600px;top:30%;right:-10%;background:var(--gold);opacity:0.05;"></div>
-  <div class="slide-inner">
-    <span class="label">Vision</span>
-    <h2>From practice companion to<br>the operating system for music education</h2>
-    <div class="vision-timeline">
-      <div class="vision-item">
-        <div class="phase-label">Now &mdash; Building</div>
-        <h4>AI Practice Companion</h4>
-        <p>Real-time coaching, session recaps, cross-genre contextual feedback, any instrument.</p>
-      </div>
-      <div class="vision-item">
-        <div class="phase-label">Months 4&ndash;8</div>
-        <h4>Audition Prep + Smart Import</h4>
-        <p>State-specific audition packages. Import music from photos, YouTube, MIDI, MusicXML.</p>
-      </div>
-      <div class="vision-item">
-        <div class="phase-label">Months 6&ndash;12</div>
-        <h4>Knowledge Engine + Listening Coach</h4>
-        <p>Expert instrument knowledge. Reference recordings that illustrate concepts. Premium tier.</p>
-      </div>
-      <div class="vision-item">
-        <div class="phase-label">Months 9&ndash;15</div>
-        <h4>Teacher Marketplace</h4>
-        <p>Educators create and sell AI-coached curricula. Content flywheel begins.</p>
-      </div>
-      <div class="vision-item">
-        <div class="phase-label">Months 12&ndash;24</div>
-        <h4>B2B + Scale</h4>
-        <p>Instrument manufacturer partnerships. International expansion. The platform wins.</p>
-      </div>
-    </div>
-  </div>
-  <div class="slide-number">17 / 18</div>
-</section>
-
-<!-- ============ SLIDE 18 — CTA ============ -->
-<section class="slide slide-cta" id="slide-18">
-  <div class="bg-glow" style="width:700px;height:700px;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--gold);opacity:0.08;"></div>
-  <div class="bg-glow" style="width:500px;height:500px;top:60%;left:60%;transform:translate(-50%,-50%);background:var(--blue);opacity:0.06;"></div>
-  <div class="slide-inner" style="text-align:center;">
-    <span class="label">Join Us</span>
-    <h2 style="font-size:clamp(2.2rem,4vw,3.2rem);">Join the Musa pilot program</h2>
-    <p class="tagline" style="font-size:1.15rem;font-style:normal;max-width:600px;margin:0 auto;">Free semester access for your studio or program.<br>Shape the future of music practice with your feedback.</p>
-    <a href="./signup/" class="cta-button">Join Us</a>
-    <p class="cta-email">Or reach out directly: <a href="mailto:perice09@gmail.com">perice09@gmail.com</a></p>
-    <p style="margin-top:3rem;font-size:1.05rem;color:var(--text-muted);font-style:italic;">The platform that wins music education will be the one that does what a great private teacher does:<br>listens, understands, remembers, adapts, and speaks the student's musical language.</p>
-    <p style="margin-top:1rem;font-size:1rem;color:var(--text-muted);">You are looking at that teacher.</p>
-  </div>
-  <div class="slide-number">18 / 18</div>
-</section>
-
-<script>
-(function() {
-  const slides = document.querySelectorAll('.slide');
-  const total = slides.length;
-  const bar = document.getElementById('progressBar');
-  const hint = document.getElementById('navHint');
-  let hintVisible = true;
-  function hideHint() { if (hintVisible) { hint.classList.add('hidden'); hintVisible = false; } }
-  function updateProgress() {
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-    bar.style.width = (scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0) + '%';
-  }
-  function currentSlideIndex() {
-    const st = window.scrollY; let idx = 0;
-    slides.forEach(function(s, i) { if (st >= s.offsetTop - window.innerHeight * 0.4) idx = i; });
-    return idx;
-  }
-  function goTo(i) { i = Math.max(0, Math.min(i, total - 1)); slides[i].scrollIntoView({ behavior: 'smooth' }); hideHint(); }
-  document.addEventListener('keydown', function(e) {
-    if (e.key==='ArrowDown'||e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ') { e.preventDefault(); goTo(currentSlideIndex()+1); }
-    else if (e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='PageUp') { e.preventDefault(); goTo(currentSlideIndex()-1); }
-    else if (e.key==='Home') { e.preventDefault(); goTo(0); }
-    else if (e.key==='End') { e.preventDefault(); goTo(total-1); }
-  });
-  window.addEventListener('scroll', function() { updateProgress(); hideHint(); }, { passive: true });
-  updateProgress();
-})();
-</script>
 </body>
 </html>

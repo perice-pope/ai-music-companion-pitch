@@ -166,7 +166,7 @@
 
 <div class="container">
 
-  <a href="../" class="back-link">Back to the deck</a>
+  <a href="../" class="back-link" data-smart-back>Back</a>
 
   <header class="header">
     <span class="label">Pilot program</span>
@@ -218,7 +218,7 @@
       <div class="check">✓</div>
       <h2>You're on the list</h2>
       <p>Thanks for signing up. We'll email you within a few days with download links and an onboarding walkthrough.</p>
-      <a href="../" class="back-link" style="margin-top:0.5rem;">Back to the deck</a>
+      <a href="../" class="back-link" data-smart-back style="margin-top:0.5rem;">Back</a>
     </div>
 
   </div>
@@ -228,6 +228,21 @@
   </p>
 
 </div>
+
+<script>
+  // Smart "back" links — prefer browser history when the visitor came from
+  // this same site (pitch deck or landing page), otherwise fall through to
+  // the href fallback (landing page at ../).
+  document.querySelectorAll('[data-smart-back]').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      var sameOrigin = document.referrer && document.referrer.indexOf(window.location.origin) === 0;
+      if (sameOrigin && window.history.length > 1) {
+        e.preventDefault();
+        window.history.back();
+      }
+    });
+  });
+</script>
 
 <script type="module">
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
