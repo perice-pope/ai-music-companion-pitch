@@ -7,6 +7,7 @@ This repo hosts the public-facing pitch deck for **AI Music Companion**, a deskt
 ## What's in here
 
 - `index.html` — the full slide deck (self-contained, no build step)
+- `signup/index.html` — pilot-program signup landing page backed by Supabase
 
 ## Editing
 
@@ -18,38 +19,57 @@ open index.html
 
 Pushes to `main` auto-deploy to GitHub Pages via the workflow in `.github/workflows/pages.yml`.
 
-## Roadmap — signup landing page
+## Signup page
 
-Slide 18's "Join Us" CTA currently points to `#signup` as a placeholder. The plan
-is to ship a real signup page at `/signup` on this same GitHub Pages site so we
-keep one repo and one URL.
+Slide 18's **Join Us** CTA links to [`/signup/`](./signup/index.html), a static
+landing page that writes pilot signups directly into Supabase.
 
-**Planned flow:**
+**Live URL:** https://perice-pope.github.io/ai-music-companion-pitch/signup/
 
-1. Visitor clicks **Join Us** on slide 18 → lands on `/signup`
-2. Signs up (email + instrument + role: student / teacher / studio)
-3. Redirected to a member area with:
-   - Desktop app download links (macOS / Windows)
-   - Tutorial library (getting started, per-instrument walkthroughs)
-   - Link to their practice dashboard once the app is installed
+### Supabase backend
 
-**Backend:** Supabase (free tier to start) for:
+- **Project:** `musa` (ref `msptnffhkcgqwbzesfyz`, region `us-west-2`) under
+  the `perice-pope's Org` organization
+- **Table:** `public.pilot_signups`
+  - `id uuid`, `email text` (unique, case-insensitive), `name`, `instrument`,
+    `role` (student / teacher / studio / other), `notes`, `source`
+    (defaults to `pitch-deck`), `user_agent`, `created_at`
+- **RLS:** enabled. Anon role can `INSERT` only — no reads, updates, or
+  deletes from the browser. Admins read signups via the Supabase dashboard
+  (or the service-role key server-side).
 
-- Auth (magic-link email signup)
-- `users` table: email, instrument, role, signup date, pilot cohort
-- `downloads` table: which build + version each user pulled
-- Later: `practice_sessions` synced from the desktop app
+The page uses the project's **publishable** anon key, which is safe to ship
+client-side because RLS is what actually gates access. If the key is ever
+compromised or leaked, rotate it in the Supabase dashboard and update
+`signup/index.html` — no other changes needed.
 
-**Hosting:** GitHub Pages for now (static HTML + Supabase JS client from CDN).
-If we outgrow Pages or need server-side rendering, migrate to Vercel or
-Cloudflare Pages and point a custom domain at it.
+### What's shipped vs. still to build
 
-**Open questions (decide before building):**
+Shipped:
 
-- Custom domain? (e.g. `musa.app`, `joinmusa.com`) — pick one before launch so
-  early signups don't bookmark the `github.io` URL.
-- Do teachers/studios get a different onboarding than individual students?
-- Do we gate downloads behind signup, or let anyone download and only gate the
-  cloud/sync features?
+- Email + role + instrument capture into `pilot_signups`
+- Case-insensitive duplicate-email handling (shows "you're already on the list")
+- Graceful failure messaging with a mailto fallback
 
-Track progress in issues on this repo tagged `signup-page`.
+Still to build (tracked via issues on this repo):
+
+- Magic-link auth and a member area (downloads + tutorials) — currently
+  signups are just a mailing list; there is no login flow yet
+- Desktop app download links (gated or ungated — decision pending)
+- Tutorial library
+- Custom domain (e.g. `musa.app`) so early signups don't bookmark the
+  `github.io` URL
+
+### Local testing
+
+Open `signup/index.html` directly in a browser, or serve the repo root with
+any static server:
+
+```bash
+python3 -m http.server 8000
+# then visit http://localhost:8000/signup/
+```
+
+Submissions from localhost go to the live Supabase project, so use a test
+email (and clean it up in the dashboard afterward) unless you want to be in
+your own pilot cohort.

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join the Musa Pilot</title>
+<meta name="description" content="Sign up for free pilot access to Musa — the AI practice companion for musicians.">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-deep:    #0B1120;
+    --bg-slide:   #0F172A;
+    --bg-card:    #1E293B;
+    --bg-card-alt:#162032;
+    --text:       #F1F5F9;
+    --text-dim:   #94A3B8;
+    --text-muted: #64748B;
+    --gold:       #F59E0B;
+    --gold-soft:  #FBBF24;
+    --blue:       #3B82F6;
+    --blue-soft:  #60A5FA;
+    --green:      #22C55E;
+    --red:        #EF4444;
+    --border:     rgba(148,163,184,0.12);
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  html, body {
+    font-family: var(--font);
+    background: var(--bg-deep);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 50% 0%, #152042 0%, var(--bg-deep) 55%),
+      var(--bg-deep);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 24px;
+  }
+
+  .bg-glow {
+    position: fixed; border-radius: 50%;
+    filter: blur(120px); opacity: 0.12; z-index: 0; pointer-events: none;
+  }
+  .bg-glow.gold { width: 700px; height: 700px; top: -150px; left: 50%; transform: translateX(-50%); background: var(--gold); }
+  .bg-glow.blue { width: 500px; height: 500px; bottom: -100px; right: -100px; background: var(--blue); opacity: 0.08; }
+
+  .container {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 560px;
+    display: flex; flex-direction: column; gap: 2rem;
+  }
+
+  .back-link {
+    font-size: 0.9rem; color: var(--text-muted); text-decoration: none;
+    letter-spacing: 0.02em; transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--blue-soft); }
+  .back-link::before { content: '← '; }
+
+  .header { text-align: center; }
+  .header .label {
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.15em;
+    font-weight: 600; color: var(--gold); margin-bottom: 1rem; display: block;
+  }
+  .header h1 {
+    font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.5em;
+    background: linear-gradient(135deg, #FFFFFF 0%, #D4D4D8 50%, var(--gold-soft) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .header p {
+    font-size: 1.05rem; color: var(--text-dim); line-height: 1.5;
+    max-width: 460px; margin: 0 auto;
+  }
+
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px;
+  }
+
+  form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field label {
+    font-size: 0.85rem; font-weight: 600; color: var(--text);
+    letter-spacing: 0.01em;
+  }
+  .field label .required { color: var(--gold); }
+  .field .hint {
+    font-size: 0.8rem; color: var(--text-muted); margin-top: -0.15rem;
+  }
+
+  input[type="text"], input[type="email"], select, textarea {
+    width: 100%; padding: 12px 14px;
+    background: var(--bg-card-alt); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-family: var(--font);
+    font-size: 0.95rem; transition: border-color 0.2s, background 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--blue);
+    background: #1a2744;
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  select { cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='%2394A3B8'%3E%3Cpath d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; background-size: 10px;
+    padding-right: 36px;
+  }
+
+  .submit-button {
+    margin-top: 0.5rem; padding: 16px 32px; border-radius: 60px; border: none;
+    background: linear-gradient(135deg, var(--gold) 0%, #D97706 100%);
+    color: var(--bg-deep); font-size: 1rem; font-weight: 700; font-family: var(--font);
+    letter-spacing: 0.02em; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 24px rgba(245,158,11,0.25);
+  }
+  .submit-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(245,158,11,0.35); }
+  .submit-button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .status {
+    padding: 14px 16px; border-radius: 10px; font-size: 0.9rem;
+    line-height: 1.5; display: none;
+  }
+  .status.error   { display: block; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; }
+  .status.success { display: block; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: #86EFAC; }
+
+  .thanks {
+    text-align: center; padding: 2rem 1rem;
+    display: none; flex-direction: column; gap: 1.2rem; align-items: center;
+  }
+  .thanks.show { display: flex; }
+  .thanks .check {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: rgba(34,197,94,0.12); border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--green); font-size: 2rem; font-weight: 700;
+  }
+  .thanks h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+  .thanks p { color: var(--text-dim); line-height: 1.5; max-width: 420px; }
+
+  .footer {
+    text-align: center; font-size: 0.85rem; color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .footer a { color: var(--blue-soft); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 560px) {
+    body { padding: 40px 16px; }
+    .card { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glow gold"></div>
+<div class="bg-glow blue"></div>
+
+<div class="container">
+
+  <a href="../" class="back-link">Back to the deck</a>
+
+  <header class="header">
+    <span class="label">Pilot program</span>
+    <h1>Join the Musa pilot</h1>
+    <p>Free semester access for studios, teachers, and individual musicians. We'll email you the download links and a short onboarding walkthrough.</p>
+  </header>
+
+  <div class="card">
+
+    <form id="signupForm" novalidate>
+      <div class="field">
+        <label for="email">Email <span class="required">*</span></label>
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
+      </div>
+
+      <div class="field">
+        <label for="name">Your name</label>
+        <input type="text" id="name" name="name" autocomplete="name" placeholder="Optional">
+      </div>
+
+      <div class="field">
+        <label for="role">I'm signing up as <span class="required">*</span></label>
+        <select id="role" name="role" required>
+          <option value="">Select one…</option>
+          <option value="student">Individual student or musician</option>
+          <option value="teacher">Private teacher</option>
+          <option value="studio">Studio, school, or program</option>
+          <option value="other">Something else</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="instrument">Primary instrument</label>
+        <input type="text" id="instrument" name="instrument" placeholder="e.g. trumpet, voice, violin">
+        <span class="hint">Helps us prioritize which profiles to polish next.</span>
+      </div>
+
+      <div class="field">
+        <label for="notes">What would you like Musa to help with?</label>
+        <textarea id="notes" name="notes" placeholder="Optional — a sentence or two is plenty."></textarea>
+      </div>
+
+      <div id="status" class="status" role="alert" aria-live="polite"></div>
+
+      <button type="submit" class="submit-button" id="submitBtn">Request pilot access</button>
+    </form>
+
+    <div class="thanks" id="thanks">
+      <div class="check">✓</div>
+      <h2>You're on the list</h2>
+      <p>Thanks for signing up. We'll email you within a few days with download links and an onboarding walkthrough.</p>
+      <a href="../" class="back-link" style="margin-top:0.5rem;">Back to the deck</a>
+    </div>
+
+  </div>
+
+  <p class="footer">
+    Questions? Email <a href="mailto:perice09@gmail.com">perice09@gmail.com</a>.
+  </p>
+
+</div>
+
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+
+  // Public, rotatable Supabase project keys — safe to ship client-side.
+  // RLS on `pilot_signups` restricts the anon role to INSERT only.
+  const SUPABASE_URL = 'https://msptnffhkcgqwbzesfyz.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_RPwMspZuMOlwJaKf9wQS9Q_m80nHRSk';
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const form = document.getElementById('signupForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const statusEl = document.getElementById('status');
+  const thanksEl = document.getElementById('thanks');
+
+  function setStatus(kind, message) {
+    statusEl.className = 'status ' + kind;
+    statusEl.textContent = message;
+  }
+  function clearStatus() {
+    statusEl.className = 'status';
+    statusEl.textContent = '';
+  }
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    clearStatus();
+
+    const data = new FormData(form);
+    const email = (data.get('email') || '').toString().trim();
+    const name = (data.get('name') || '').toString().trim() || null;
+    const role = (data.get('role') || '').toString();
+    const instrument = (data.get('instrument') || '').toString().trim() || null;
+    const notes = (data.get('notes') || '').toString().trim() || null;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus('error', 'Please enter a valid email address.');
+      return;
+    }
+    if (!role) {
+      setStatus('error', 'Please pick which role fits you best.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+
+    try {
+      const { error } = await supabase.from('pilot_signups').insert({
+        email: email,
+        name: name,
+        role: role,
+        instrument: instrument,
+        notes: notes,
+        source: 'pitch-deck',
+        user_agent: navigator.userAgent
+      });
+
+      if (error) {
+        // Postgres unique-violation code = 23505 (duplicate email)
+        if (error.code === '23505') {
+          setStatus('success', "You're already on the list — we'll be in touch soon.");
+          form.style.display = 'none';
+          thanksEl.classList.add('show');
+          return;
+        }
+        console.error('Supabase insert failed', error);
+        setStatus('error', "Sorry, something went wrong on our end. Please email perice09@gmail.com and we'll add you manually.");
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Request pilot access';
+        return;
+      }
+
+      form.style.display = 'none';
+      thanksEl.classList.add('show');
+    } catch (err) {
+      console.error('Signup request failed', err);
+      setStatus('error', "Couldn't reach the server. Check your connection and try again, or email perice09@gmail.com.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Request pilot access';
+    }
+  });
+</script>
+
+</body>
+</html>
