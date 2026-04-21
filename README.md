@@ -1,32 +1,62 @@
-# AI Music Companion — Pitch Deck
+# Musa — marketing site
 
-This repo hosts the public-facing pitch deck for **AI Music Companion**, a desktop practice tool for musicians.
+This repo hosts the public-facing site for **Musa**, an AI practice companion
+for musicians. It's a tiny three-surface static site served off GitHub Pages:
+
+| Surface        | Path        | Purpose                                                  |
+| -------------- | ----------- | -------------------------------------------------------- |
+| Landing page   | `/`         | Marketing home — features, demo, downloads, community    |
+| Pitch deck     | `/pitch/`   | 18-slide investor/partner story (the original deck)      |
+| Pilot signup   | `/signup/`  | Email capture backed by Supabase                         |
 
 **Live site:** https://perice-pope.github.io/ai-music-companion-pitch/
 
 ## What's in here
 
-- `index.html` — the full slide deck (self-contained, no build step)
-- `signup/index.html` — pilot-program signup landing page backed by Supabase
+- `index.html` — landing page (hero, features, demo, downloads, tutorials, docs, community, footer)
+- `pitch/index.html` — the full 18-slide pitch deck, self-contained
+- `signup/index.html` — pilot-program signup form backed by Supabase
+- `.github/workflows/pages.yml` — auto-deploys every push to `main`
+
+All three pages are single-file static HTML with inline CSS. No build step,
+no framework, no bundler. The signup page pulls in `@supabase/supabase-js` from
+an ESM CDN at runtime.
 
 ## Editing
 
-The deck is a single HTML file with inline CSS and vanilla JS. Open it locally:
-
 ```bash
+# open any page directly
 open index.html
+open pitch/index.html
+open signup/index.html
+
+# or serve the whole site locally
+python3 -m http.server 8000
+# then visit http://localhost:8000/
 ```
 
-Pushes to `main` auto-deploy to GitHub Pages via the workflow in `.github/workflows/pages.yml`.
+Pushes to `main` auto-deploy to GitHub Pages via the workflow in
+`.github/workflows/pages.yml`.
 
-## Signup page
+## Site structure
 
-Slide 18's **Join Us** CTA links to [`/signup/`](./signup/index.html), a static
-landing page that writes pilot signups directly into Supabase.
+```
+/                 — landing page (marketing home)
+├── #features     — three-card feature grid
+├── #demo         — demo video placeholder (YouTube, coming soon)
+├── #download     — macOS / Windows / Linux cards ("coming soon")
+├── #tutorials    — 3-card tutorial library (YouTube, coming soon)
+├── #docs         — docs card (coming soon)
+└── #community    — Discord + GitHub cards
 
-**Live URL:** https://perice-pope.github.io/ai-music-companion-pitch/signup/
+/pitch/           — 18-slide pitch deck with keyboard navigation
+/signup/          — pilot signup form, writes to Supabase
+```
 
-### Supabase backend
+The landing page nav has a **Join the pilot** CTA in the top-right and a
+final CTA section above the footer. Both link to `/signup/`.
+
+## Signup backend (Supabase)
 
 - **Project:** `musa` (ref `msptnffhkcgqwbzesfyz`, region `us-west-2`) under
   the `perice-pope's Org` organization
@@ -40,36 +70,56 @@ landing page that writes pilot signups directly into Supabase.
 
 The page uses the project's **publishable** anon key, which is safe to ship
 client-side because RLS is what actually gates access. If the key is ever
-compromised or leaked, rotate it in the Supabase dashboard and update
-`signup/index.html` — no other changes needed.
+leaked, rotate it in the Supabase dashboard and update `signup/index.html` —
+no other changes needed.
 
-### What's shipped vs. still to build
+### Reading signups
+
+Supabase dashboard → `musa` project → Table editor → `pilot_signups`. Or in
+the SQL editor:
+
+```sql
+select created_at, email, name, role, instrument, notes
+from pilot_signups
+order by created_at desc;
+```
+
+## Placeholders to fill in
+
+The landing page ships with honest "coming soon" labels on surfaces that
+aren't ready yet. Swap these in as they materialize:
+
+- **Demo video** (`index.html` `#demo` section) — replace the placeholder
+  frame with a YouTube embed once the walkthrough is filmed.
+- **Download buttons** (`#download` section) — swap the three "Coming soon"
+  buttons for links to GitHub Releases (or hosted installers) per platform
+  once beta 1.0 ships.
+- **Tutorial cards** (`#tutorials` section) — replace the three `href="#"`
+  placeholders with real YouTube URLs as videos publish.
+- **Docs link** (`#docs` section) — point to `/docs/` (or an external docs
+  host) once documentation is drafted.
+- **Discord invite** (`#community` section) — replace the placeholder `href="#"`
+  with the permanent invite URL once the server is created.
+- **Custom domain** — once `musa.app` (or similar) is registered, add a
+  `CNAME` file to the repo root with the bare domain.
+
+## Roadmap
 
 Shipped:
 
-- Email + role + instrument capture into `pilot_signups`
-- Case-insensitive duplicate-email handling (shows "you're already on the list")
-- Graceful failure messaging with a mailto fallback
+- Landing page with all sections (placeholders where needed)
+- Pitch deck (18 slides, keyboard-navigable, print-friendly)
+- Pilot signup form writing to Supabase with RLS
 
-Still to build (tracked via issues on this repo):
+In flight / soon:
 
-- Magic-link auth and a member area (downloads + tutorials) — currently
-  signups are just a mailing list; there is no login flow yet
-- Desktop app download links (gated or ungated — decision pending)
-- Tutorial library
-- Custom domain (e.g. `musa.app`) so early signups don't bookmark the
-  `github.io` URL
+- Beta builds of the desktop app for macOS, Windows, Linux
+- Demo video and first tutorial batch on YouTube
+- Public Discord server
+- `/docs/` with setup and instrument-profile reference
 
-### Local testing
+Later:
 
-Open `signup/index.html` directly in a browser, or serve the repo root with
-any static server:
-
-```bash
-python3 -m http.server 8000
-# then visit http://localhost:8000/signup/
-```
-
-Submissions from localhost go to the live Supabase project, so use a test
-email (and clean it up in the dashboard afterward) unless you want to be in
-your own pilot cohort.
+- Magic-link auth and a member area (gated downloads + practice dashboard)
+- Custom domain
+- Blog / devlog section under `/blog/`
