@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node (in case we ever add a build step here)
+node_modules/
+dist/
+
+# Sensitive strategy / internal docs that must not land in this
+# PUBLIC repo — keep them in the private app repo instead. Names
+# listed explicitly so a copy-paste doesn't accidentally commit
+# them.
+AI_Music_Companion_Platform_Strategy_v3.docx
+*Platform_Strategy*.docx
+*Platform_Strategy*.pdf
+*internal*.md
+*internal*.docx
